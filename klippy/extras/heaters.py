@@ -347,6 +347,7 @@ class PrinterHeaters:
             raise gcmd.error("Unknown sensor '%s'" % (sensor_name,))
         min_temp = gcmd.get_float('MINIMUM', float('-inf'))
         max_temp = gcmd.get_float('MAXIMUM', float('inf'), above=min_temp)
+        suppress = gcmd.get('SUPPRESS')
         if min_temp == float('-inf') and max_temp == float('inf'):
             raise gcmd.error(
                 "Error on 'TEMPERATURE_WAIT': missing MINIMUM or MAXIMUM.")
@@ -364,7 +365,8 @@ class PrinterHeaters:
             if temp >= min_temp and temp <= max_temp:
                 return
             print_time = toolhead.get_last_move_time()
-            gcmd.respond_raw(self._get_temp(eventtime))
+            if suppress != "1":
+                gcmd.respond_raw(self._get_temp(eventtime))
             eventtime = reactor.pause(eventtime + 1.)
 
 def load_config(config):
